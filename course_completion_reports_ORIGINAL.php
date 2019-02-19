@@ -104,7 +104,6 @@
                 $start_timestamp = strtotime($_POST['startdate']);
                 $month = (int)date("m",$start_timestamp);
                 $year = (int)date("Y",$start_timestamp);
-                $i = $month;
                 $m="";
                 $fullmonth = date("F",$start_timestamp);
                 
@@ -117,37 +116,31 @@
                 else{
                     $m = $month;
                 }
-                $year_label = $year;
-                $monthlabels = array('Jan','Feb','March','April','May','June','July','Aug','Sep','Oct','Nov','Dec');
-                $monthtraversed = 0;
-                while(($i%12) >= 0 && ($i%12) <= 11 && ($monthtraversed != 12)){
-                    $monthtraversed  += 1; 
-                    $modulus = $i%12;
-                    if($modulus == 0){
-                        $year += 1;
-                        $year_label .= ','.$year;
-                    }
+                
+                 $monthlabels = array('Jan','Feb','March','April','May','June','July','Aug','Sep','Oct','Nov','Dec');
+
+                for ($i = 1; $i<=12 ; $i++ ){
+
                     $count = 0;
-
+                   
                          
-                    if(in_array($modulus, $d)){
-                        $j = "0".$modulus;
-                        
-                    }
-                    else{
-                        $j =$modulus;
-                        
+                        if(in_array($i, $d)){
+                            $j = "0".$i;
+                            
+                        }
+                        else{
+                            $j =$i;
+                            
 
-                    }
-                    $key = ($modulus == 0) ? 11 :($modulus-1);
+                        }
 
                     $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%m-%Y") = "'.$j.'-'.$year.'"  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
                     
                     $percent_monthwise = $DB->get_records_sql($sql);
                     $count = round((count($percent_monthwise)/$enrolled_count)*100,2);
                     $datastr .= '[';
-                    $datastr .= '"'.$monthlabels[($key)].'", '.$count.'],';
-                    $i++;
+                    $datastr .= '"'.$monthlabels[($i-1)].'", '.$count.'],';
+                   
 
                 }
                 
@@ -158,37 +151,7 @@
 
 
                 // $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and  timecompleted BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist .' and timecompleted IS NOT NULL';
-                $yeartaken = explode(',', $year_label);
-                if(count($yeartaken) == 1){
-
-                    $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%Y") = "'.$year.'"';
-                }
-                else if(count($yeartaken) == 2){
-                    $startdate = $_POST['startdate'];
-                    $start_timestamp = strtotime($startdate);
-                    if(in_array($month, $d)){
-                        $startmonth = "0".$month;
-                    }
-                    else{
-                        $startmonth = $month;
-                    }
-                    
-
-                    $endmonth = ($modulus == 0 )? 12 : $modulus;
-
-                    if(in_array($endmonth, $d)){
-                        $endmonth = "0".$endmonth;
-                    }
-                    
-                    $date1 = "01-".($startmonth)."-".$yeartaken[0]; 
-                    $date2  = "31-".($endmonth)."-".$yeartaken[1]; 
-                    $endtimestamp = strtotime($date2);
-                   
-                    $sql_table = 'select userid, DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%d-%m-%Y"), timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted BETWEEN  '.$start_timestamp .' and '.$endtimestamp;
-                   
-
-                }
-               
+                $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%m-%Y") = "'.$m.'-'.$year.'"';
             }
             else{
 
@@ -198,7 +161,7 @@
                 $month = (int)date("m",$start_timestamp);
                 $year = (int)date("Y",$start_timestamp);
 
-                $i = $month;
+                
                 $m="";
                 $fullmonth = date("F",$start_timestamp);
                 
@@ -211,85 +174,47 @@
                 else{
                     $m = $month;
                 }
-                $year_label = $year;
                 $monthlabels = array('Jan','Feb','March','April','May','June','July','Aug','Sep','Oct','Nov','Dec');
-                $monthtraversed = 0;
-                while(($i%12) >= 0 && ($i%12) <= 11 && ($monthtraversed != 12)){
-                    $monthtraversed  += 1; 
-                    $modulus = $i%12;
-                    if($modulus == 0){
-                        $year += 1;
-                        $year_label .= ','.$year;
-                    }
+
+                for ($i = 1; $i<=12 ; $i++ ){
+
                     $count = 0;
-
+                   
                          
-                    if(in_array($modulus, $d)){
-                        $j = "0".$modulus;
-                        
-                    }
-                    else{
-                        $j =$modulus;
-                        
+                        if(in_array($i, $d)){
+                            $j = "0".$i;
+                            
+                        }
+                        else{
+                            $j =$i;
+                            
 
-                    }
-                    $key = ($modulus == 0) ? 11 :($modulus-1);
+                        }
 
                     $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%m-%Y") = "'.$j.'-'.$year.'"  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
                     
                     $percent_monthwise = $DB->get_records_sql($sql);
                     $count = round((count($percent_monthwise)/$enrolled_count)*100,2);
                     $datastr .= '[';
-                    $datastr .= '"'.$monthlabels[($key)].'", '.$count.'],';
-                    $i++;
+                    $datastr .= '"'.$monthlabels[($i-1)].'", '.$count.'],';
+                   
 
                 }
                 
                 $datastr = rtrim($datastr, ',');
 
-                /*week logic*/
+
                 // $end_timestamp = strtotime('+ 7 days', $start_timestamp);
 
 
                 // $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and  timecompleted BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist .' and timecompleted IS NOT NULL';
-                /*week logic*/
-                $yeartaken = explode(',', $year_label);
-
-                if(count($yeartaken) == 1){
-
-                     $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%Y") = "'.$year.'"';
-                }
-                else if(count($yeartaken) == 2){
-                    
-
-                    if(in_array($month, $d)){
-                        $startmonth = "0".$month;
-                    }
-                    else{
-                        $startmonth = $month;
-                    }
-                    
-
-                    $endmonth = ($modulus == 0 )? 12 : $modulus;
-
-                    if(in_array($endmonth, $d)){
-                        $endmonth = "0".$endmonth;
-                    }
-                    
-                    $date1 = "01-".($startmonth)."-".$yeartaken[0]; 
-                    $date2  = "31-".($endmonth)."-".$yeartaken[1]; 
-                    $endtimestamp = strtotime($date2);
-                   
-                     $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted BETWEEN  '.$start_timestamp .' and '.$endtimestamp;
-                  
-                }
-                
+                $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%m-%Y") = "'.$m.'-'.$year.'"';
 
                 /* ## completed % irrespective of month ## $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL';*/
             }
             
                 
-           
+              
             $course = $DB->get_records_sql($sql_table);
 
             $percent_course_comp = round((count($course)/$enrolled_count)*100,2);
@@ -330,13 +255,11 @@
 
                     },
                     series: {
-                        0: {color: '#f1ca3a'},
-                       
+                        0: { color: '#e2431e' },
                     },
                     legend: {
                       position: 'top',
                     },
-
                     vAxis:{
                         title: 'Percentage Completion',
                         textStyle : {
@@ -344,7 +267,7 @@
                         }
                     },
                     hAxis:{
-                        title : 'Month Wise Distribution -Year (".$year_label.")',
+                        title : 'Month Wise Distribution -Year (".$year.")',
                         
                     },
                         
@@ -390,7 +313,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="row">
-                        <label id="selector"><?php echo isset($_POST['startdate']) && $_POST['startdate'] != "" ? 'Year (Selected) : &nbsp;' : 'Year (Not selected from date picker) : &nbsp;' ?></label><input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?> " placeholder='Date from date picker not selected'/>
+                        Year (Select date to view graph) : &nbsp;<input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?>"/>
                          <a  style="color:green;cursor:pointer;" id="clear"> Clear Date</a>
 
                     </div>

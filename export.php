@@ -15,6 +15,7 @@
     $worksheet[0] = $workbook->add_worksheet('');
     
     $COURSE = $_REQUEST['cid'];
+    $startdate = $_REQUEST['startdate'];
    $col = 0;
 
     $fields = array('Course Name','Activity Name','Activity Type','Total Enrolled','Total Completed', 'Activity Completion');
@@ -82,8 +83,17 @@
 
          $activity_completion = array();/* contains % completion with cmid as keys */
         foreach($allmodules as $key => $module){
-
-            $sql = 'select userid,timemodified from {course_modules_completion} where coursemoduleid ='.$module->id.' and timemodified  IS NOT NULL and userid in '.$userlist;
+            if($startdate == ""){
+               $sql = 'select userid,timemodified from {course_modules_completion} where coursemoduleid ='.$module->id.' and timemodified  IS NOT NULL and userid in '.$userlist; 
+            }
+            else if($startdate != ""){
+                $start_timestamp = strtotime($startdate);
+                $end_timestamp = strtotime('+ 7 days', $start_timestamp);
+                
+                $sql = 'select userid,timemodified from {course_modules_completion} where coursemoduleid ='.$module->id.' and timemodified BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist ;
+                
+            }
+            
 
              $act = $DB->get_records_sql($sql);
 

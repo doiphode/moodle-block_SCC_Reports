@@ -176,6 +176,20 @@
                                     <td>'.count($act).'</td>
                                     <td>'.$activity_completion[$key].'%</td>
                                 </tr>';
+
+                                if($coursecomp == 0){
+
+                                    $datastr .='[';
+                                     $datastr .= '"'.$actname->name.'"' .',' .$activity_completion[$key].',"'.$activity_completion[$key].'%"';
+                                    $datastr .= '],';
+                                }
+                                else if($coursecomp == 1){
+                                    $datastr .='[';
+                                     $datastr .= '"'.$actname->name.'",' .$percent_course_comp.',"'.$percent_course_comp.'%" ,'.$activity_completion[$key].' , "'.$activity_completion[$key].'%"';
+                                    $datastr .= '],';
+                                }
+
+                            
                         }
                     }
                     else if(isset($cmid_array) && count($cmid_array) == 0){
@@ -186,9 +200,37 @@
                                     <td>'.count($act).'</td>
                                     <td>'.$activity_completion[$key].'%</td>
                                 </tr>';
+
+                                if($coursecomp == 0){
+
+
+                                    $datastr .='[';
+                                     $datastr .= '"'.$actname->name.'"' .',' .$activity_completion[$key].',"'.$activity_completion[$key].'%"';
+                                    $datastr .= '],';
+                                }
+                                else if($coursecomp == 1){
+                                     $datastr .='[';
+                                     $datastr .= '"'.$actname->name.'",' .$percent_course_comp.',"'.$percent_course_comp.'%" ,'.$activity_completion[$key].' , "'.$activity_completion[$key].'%"';
+                                    $datastr .= '],';
+                                }
+
+                    }
+                    else if(!isset($cmid_array)){
+                        $acthtml .= '<tr> 
+                                    <td id="row_'.$key.'">'.$actname->name.'</td>
+                                    <td>'.$table->name.'</td>
+                                    <td>'.$enrolled_count.'</td>
+                                    <td>'.count($act).'</td>
+                                    <td>'.$activity_completion[$key].'%</td>
+                                </tr>';
+
+                         $datastr .='[';
+                             $datastr .= '"'.$actname->name.'"' .',' .$activity_completion[$key].',"'.$activity_completion[$key].'%"';
+                            $datastr .= '],';
+
                     }
 
-                        if(isset($cmid_array) && count($cmid_array) == 0){
+                       /* if(isset($cmid_array) && count($cmid_array) == 0){
                             
                                 if($coursecomp == 0){
 
@@ -227,7 +269,7 @@
                              $datastr .='[';
                                      $datastr .= '"'.$actname->name.'"' .',' .$activity_completion[$key].',"'.$activity_completion[$key].'%"';
                                     $datastr .= '],';
-                        }
+                        }*/
 
 
             }
@@ -263,7 +305,7 @@
             var options = {
                 chartArea: {
                   
-                  width: '100%',
+                  width: '90%',
                   left: 40,
                 },
                 legend: {
@@ -271,6 +313,9 @@
                 },
                 vAxis:{
                     title: 'Percentage Completion',
+                    textStyle : {
+                            fontSize: 9 // or the number you want
+                        }
                 },
                     
                     
@@ -316,7 +361,7 @@
                                 <?php echo $option ?>
                             </select>
                         </form> -->
-                        <a href="export.php?cid=<?php echo $COURSE ?>"><img id= "printbutton" src="images/excelnew.jpg" style="height:75px; width:149px"/></a>
+                        <a href="export.php?cid=<?php echo $COURSE ?>&startdate=<?php echo isset($_POST['startdate']) ?$_POST['startdate']:'' ?>"><img id= "printbutton" src="images/excelnew.jpg" style="height:75px; width:149px"/></a>
 
                     </div>
                     <div class="col-md-4">
