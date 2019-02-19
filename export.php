@@ -65,7 +65,7 @@
          $activity_completion = array();/* contains % completion with cmid as keys */
         foreach($allmodules as $key => $module){
 
-            $sql = 'select userid,timemodified from {course_modules_completion} where coursemoduleid ='.$module->id.' and userid in '.$userlist;
+            $sql = 'select userid,timemodified from {course_modules_completion} where coursemoduleid ='.$module->id.' and timemodified  IS NOT NULL and userid in '.$userlist;
 
              $act = $DB->get_records_sql($sql);
 

@@ -36,7 +36,15 @@ $(document).ready(function(){
 		$('#dateform').submit();
 		
 	});
+	$('.format').click(function(){
+		var id = this.id;
+		var value = this.value;
 
+		$(':radio').removeAttr("checked");
+		$('#'+id).attr('checked', 'checked');
+		$('#dateform #format').val(value);
+
+	});
 	$('#form1 #courselist').change(function(){
 
 
@@ -80,9 +88,10 @@ $(document).ready(function(){
 
 				url:'ajax.php',
 				type:'POST',
-				data:{'request' : 'savecompletionreport', 'coursecomp': coursecomp , 'courseid': courseid,'cmid_encoded': cmid_encoded},
+				data:{'request' : 'savecompletionreport', 'courseid': courseid,'cmid_encoded': cmid_encoded},
 				success:function(data){
 					if(data == 1){
+						alert('Setting are saved ! Check reports to see graph');
 						$('#form2').submit();
 					}
 

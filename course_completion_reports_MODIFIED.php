@@ -104,24 +104,33 @@
                 $start_timestamp = strtotime($_POST['startdate']);
                 $month = (int)date("m",$start_timestamp);
                 $year = (int)date("Y",$start_timestamp);
+                $date = (int)date("d",$start_timestamp);
                 $m="";
                 
-                if($month == 2){
+                if($_POST['format'] == 'month'){
+                    if($month == 2){
 
-                    if($year % 4 == 0){
-                        /* leap year */
-                        $days = 29;
+                        if($year % 4 == 0){
+                            /* leap year */
+                            $days = 29;
+
+                        }
+                        else{
+                            $days = 28;
+                        }
+                    }
+                    else if (($month == 1 || $month == 3 || $month == 5 || $month == 7 || $month == 8 || $month == 10 || $month == 12 ) && $month != 2 ){
+                        $days = 31;
+
+                    }else if (($month == 4 || $month == 6 || $month == 9 || $month == 11 ) && $month != 2 ){
+                        $days = 30;
 
                     }
-                    else{
-                        $days = 28;
-                    }
+                    $i = 1;
                 }
-                else if (($month == 1 || $month == 3 || $month == 5 || $month == 7 || $month == 8 || $month == 10 || $month == 12 ) && $month != 2 ){
-                    $days = 31;
+                else if($_POST['format'] == 'week'){
 
-                }else if (($month == 4 || $month == 6 || $month == 9 || $month == 11 ) && $month != 2 ){
-                    $days = 30;
+                    $i = $date;
 
                 }
                 $d = [1,2,3,4,5,6,7,8,9];
@@ -133,7 +142,7 @@
                     $m = $month;
                 }
                 
-                for ($i = 1; $i<=$days ; $i++ ){
+                for (; $i<=$days ; $i++ ){
                     $count = 0;
                    
                          
@@ -159,12 +168,16 @@
                 
                 $datastr = rtrim($datastr, ',');
 
+                if($_POST['format'] == 'week'){
+                    $end_timestamp = strtotime('+ 7 days', $start_timestamp);
 
-                // $end_timestamp = strtotime('+ 7 days', $start_timestamp);
 
-
-                // $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and  timecompleted BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist .' and timecompleted IS NOT NULL';
-                $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%m-%Y") = "'.$m.'-'.$year.'"';
+                    $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and  timecompleted BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                }
+                if($_POST['format'] == 'month'){
+                    
+                    $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%m-%Y") = "'.$m.'-'.$year.'"';
+                }
             }
             else{
                 $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
@@ -246,6 +259,7 @@
         <div class="container">
 
              <form id="dateform" method="POST">
+            <input name="format" id="format" hidden />
             <input name ="startdate" id="startdate" hidden  />
             <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($COURSE) && $COURSE != "" ?  $COURSE  : '' ?>"/> 
 
@@ -263,9 +277,16 @@
                     </div>
                     <div class="col-md-6">
                         <div class="row">
-                        Month(Select date to view graph) : &nbsp;<input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?>"/>
-                         <a  style="color:green;cursor:pointer;" id="clear"> Clear Date</a>
-
+                           
+                                Month Wise:&nbsp; <input type="radio" class="format" name="format" id="month" value="month"  checked/>&nbsp;
+                                Week Wise: &nbsp;<input type="radio" name="format"  class="format" id="week" value="week" />&nbsp;
+                            
+                                <div class="col"> 
+                                Month : &nbsp;<input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?>"/></br>
+                                <a  style="color:green;cursor:pointer;" id="clear"> Clear Date</a>
+                                </div>
+                            
+                        </div>
                     </div>
                
                
@@ -273,7 +294,7 @@
             </div>
              <div id="graph" class= "col-md-12"></div>
 
-            <div class="row mt-5">
+            <div class="row">
                 
                 <div class= "col-md-12" id="report_div">
                     <div style="background-color: #ddd;text-align: center;height:30px"><h4>Course Completion Status: </h4></div>
