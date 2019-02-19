@@ -11,7 +11,7 @@
     $PAGE->navbar->ignore_active();
 
     $PAGE->requires->jquery();
-    $PAGE->requires->js( new moodle_url($CFG->wwwroot . '/blocks/ssc_reports/custom.js'));
+    $PAGE->requires->js( new moodle_url($CFG->wwwroot . '/blocks/scc_reports/custom.js'));
      
     
     if(!is_siteadmin()){
@@ -19,6 +19,7 @@
     }
 
     echo $OUTPUT->header();
+    $COURSE  = $_REQUEST['cid'];
 
     $sql = 'select id, shortname from {course} where id >1';
     $courses = $DB->get_records_sql($sql);
@@ -27,14 +28,14 @@
 
 
     foreach($courses as $key => $course){
-        $option .= '<option value= "'.$course->id.'" '.(isset($_POST['courselist']) && $_POST['courselist'] == $course->id  ? "selected" : "").'>'.$course->shortname.'</option>'; 
+        $option .= '<option value= "'.$course->id.'" '.(isset($COURSE) && $COURSE == $course->id  ? "selected" : "").'>'.$course->shortname.'</option>'; 
     }
 
 
     $html = "";$coursecomp = 0;
     $actcomp = 0;
     
-    if(isset($_POST['courselist']) && $_POST['courselist'] != ""){
+    if(isset($COURSE) && $COURSE != ""){
 
         $sql = 'select id from {modules} where name in ("assign","assignment","choice","feedback","imscp","lesson","quiz","scorm","workshop","survey")';
         $modules = $DB->get_records_sql($sql);
@@ -45,7 +46,7 @@
         $instr = trim($instr,',');
         $instr .= ")";
 
-         $sql = 'select id,module, instance from {course_modules} where course = '.$_POST['courselist']. ' and module in  '.$instr;
+         $sql = 'select id,module, instance from {course_modules} where course = '.$COURSE. ' and module in  '.$instr;
        ;
         $allmodules = $DB->get_records_sql($sql);
         // echo '<pre>';
@@ -55,7 +56,7 @@
             $sql = 'select name from {modules} where id ='.$module->module;
             $table = $DB->get_record_sql($sql);
 
-            $sql = "select * from {completion_report} where courseid = ".$_POST['courselist'];
+            $sql = "select * from {completion_report} where courseid = ".$COURSE;
             $saved = $DB->get_record_sql($sql);
             if(isset($saved->id) && $saved->id >0 ){
                 
@@ -106,22 +107,7 @@
 
        
             <div class= "row">
-                <div class ="col-9" >
-                    <form id= "form1" method="POST">
-                        <select name= "courselist" id="courselist" >
-                            <?php echo $option ?>
-                        </select>
-                    </form>
-                </div>
                 
-
-                 <div class="col-3">
-                    <a href="activity_completion_reports.php" target="_blank" style="color:red;">Activity Completion Reports</a><br>
-                    <!-- <a href="course_completion_reports.php" target="_blank" style="color:red;">Course Completion Reports</a> -->
-                </div>
-
-               
-            </div>
                 
 
             
@@ -148,7 +134,9 @@
                 </div>
                 <div class="col-md-3">
                     <div class="row">
-                        <input type="checkbox" name="coursecomp" id ="coursecomp" value="<?php echo $coursecomp ;?>" <?php echo $coursecomp == 1 ? 'checked': ''?>>Course Completion<br>
+                        <!-- <input type="checkbox" name="coursecomp" id ="coursecomp" value="<?php echo $coursecomp ;?>" <?php echo $coursecomp == 1 ? 'checked': ''?>>Course Completion<br> -->
+                         <a href="activity_completion_reports.php?cid=<?php echo $COURSE ?>" target="_blank" style="color:red;">Activity Completion Reports</a><br>
+                    <a href="course_completion_reports.php?cid=<?php echo $COURSE ?>" target="_blank" style="color:red;">Course Completion Reports</a>
                     </div>
                 </div>
             </div
@@ -160,7 +148,7 @@
                
             </div>
             <form id = "form2" method="POST">
-                 <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($_POST['courselist']) && $_POST['courselist'] != "" ?  $_POST['courselist']  : '' ?>"/>
+                 <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($COURSE) && $COURSE != "" ?  $COURSE  : '' ?>"/>
              </form>
     </div>
     <script src="https://unpkg.com/gijgo@1.9.11/js/gijgo.min.js" type="text/javascript"></script>

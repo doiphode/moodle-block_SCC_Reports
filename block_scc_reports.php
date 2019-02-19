@@ -30,9 +30,9 @@ defined('MOODLE_INTERNAL') || die();
  * The blog menu block class
  */
 
-class block_ssc_reports extends block_base {
+class block_scc_reports extends block_base {
 	function init() {
-		$this->title = get_string('pluginname', 'block_ssc_reports');
+		$this->title = get_string('pluginname', 'block_scc_reports');
 
 	}
 	public static function load($file)
@@ -50,7 +50,8 @@ class block_ssc_reports extends block_base {
             
              global $CFG, $COURSE,$USER,$DB;
              // CODE TO GET CURRENT USERS ROLE
-	$context = context_system::instance();
+	// $context = context_system::instance();
+             $context = context_course::instance($COURSE->id);
 	
 	$roles = get_user_roles($context, $USER->id);
 
@@ -66,11 +67,11 @@ class block_ssc_reports extends block_base {
 	    if(is_siteadmin() || $currentuserroleid == 1 ){
 	// 
 	    	// $mdllinks = "<a href='" . $CFG->wwwroot . "/blocks/school/school.php ' >" . get_string( 'school', 'block_school' ) . "</a><br/>";
-	        $mdllinks = "<a href='" . $CFG->wwwroot . "/blocks/ssc_reports/configure_reports.php'>Settings</a><br/>";
+	        $mdllinks = "<a href='" . $CFG->wwwroot . "/blocks/scc_reports/configure_reports.php?cid=".$COURSE->id . "'>Settings</a><br/>";
 
-	        // $mdllinks .= "<a href='" . $CFG->wwwroot . "/blocks/ssc_reports/course_completion_reports.php'>Course Completion Reports</a><br/>";
-	        $mdllinks .= "<a href='" . $CFG->wwwroot . "/blocks/ssc_reports/activity_completion_reports.php'>Activity Completion Reports</a><br/>";
-	        $mdllinks .= "<a href='" . $CFG->wwwroot . "/blocks/ssc_reports/useranalysis.php'>User Analysis</a><br/>";
+	        $mdllinks .= "<a href='" . $CFG->wwwroot . "/blocks/scc_reports/course_completion_reports.php?cid=".$COURSE->id . "'>Course Completion Reports</a><br/>";
+	        $mdllinks .= "<a href='" . $CFG->wwwroot . "/blocks/scc_reports/activity_completion_reports.php?cid=".$COURSE->id . "'>Activity Completion Reports</a><br/>";
+	        $mdllinks .= "<a href='" . $CFG->wwwroot . "/blocks/scc_reports/useranalysis.php?cid=".$COURSE->id . "'>User Analysis</a><br/>";
 
 			
 			return $this->content->text = $mdllinks;

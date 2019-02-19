@@ -8,7 +8,7 @@ global $CFG, $DB, $OUTPUT, $USER,$COURSE;
 $timestamp = time();
 
 $courseid= $_POST['courseid'];
-$coursecomp_selected= $_POST['coursecomp'];
+$coursecomp_selected= 0;
 $cmid_selected= urlencode($_POST['cmid_encoded']);
 
 

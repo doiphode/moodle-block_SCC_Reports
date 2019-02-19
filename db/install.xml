@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/ssc_reports/db" VERSION="2015012914" COMMENT="XMLDB file for Moodle blocks/ssc_reports"
+<XMLDB PATH="blocks/scc_reports/db" VERSION="2015012914" COMMENT="XMLDB file for Moodle blocks/scc_reports"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >

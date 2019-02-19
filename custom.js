@@ -72,7 +72,7 @@ $(document).ready(function(){
 
 			});
 			cmid_encoded = JSON.stringify(cmids);
-			var coursecomp = $('#coursecomp').val();
+			// var coursecomp = $('#coursecomp').val();
 			// alert('coursecomp : '+coursecomp);
 			
 			// 

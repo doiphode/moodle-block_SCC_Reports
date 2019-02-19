@@ -12,10 +12,10 @@
 
     $PAGE->requires->jquery();
 
-    $PAGE->requires->js( new moodle_url($CFG->wwwroot . '/blocks/ssc_reports/custom.js'));
+    $PAGE->requires->js( new moodle_url($CFG->wwwroot . '/blocks/scc_reports/custom.js'));
     $PAGE->requires->css( new moodle_url('https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css'));
 
-    $PAGE->requires->css( new moodle_url($CFG->wwwroot .'/blocks/ssc_reports/style.css'));
+    $PAGE->requires->css( new moodle_url($CFG->wwwroot .'/blocks/scc_reports/style.css'));
      
 
       $context = context_system::instance();
@@ -32,25 +32,31 @@
     }
 
     echo $OUTPUT->header();
+    if(isset($_REQUEST['cid'])){
+         $COURSE  = $_REQUEST['cid'];
 
+    }
+   
     echo "<script src='https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js'></script>";
 
     $sql = 'select id, shortname from {course} where id >1';
     $courses = $DB->get_records_sql($sql);
     
     $option = '<option value="">Select a course</option>';
-
+    if(isset($_POST['courselist']) && $_POST['courselist'] != ""){
+        $COURSE  = $_POST['courselist'];
+    }
 
     foreach($courses as $key => $course){
-        $option .= '<option value= "'.$course->id.'" '.(isset($_POST['courselist']) && $_POST['courselist'] == $course->id  ? "selected" : "").'>'.$course->shortname.'</option>'; 
+        $option .= '<option value= "'.$course->id.'" '.(isset($COURSE) && $COURSE == $course->id  ? "selected" : "").'>'.$course->shortname.'</option>'; 
     }
     $coursehtml ="";  
     $datastr = "";  
 
-     if(isset($_POST['courselist']) && $_POST['courselist'] != ""){
+     if(isset($COURSE) && $COURSE != ""){
 
 
-        $sql = 'select id from {enrol} where courseid = '.$_POST['courselist'] .' and enrol= "manual"';
+        $sql = 'select id from {enrol} where courseid = '.$COURSE .' and enrol= "manual"';
         $enrol = $DB->get_record_sql($sql);
         if(isset($enrol->id)){
 
@@ -75,7 +81,7 @@
 
 
 
-            $sql = 'select shortname from {course} where id = '.$_POST['courselist'];
+            $sql = 'select shortname from {course} where id = '.$COURSE;
             $name = $DB->get_record_sql($sql);
 
            
@@ -84,12 +90,7 @@
             
                 $first_minute = mktime(0, 0, 0, 1,1, 2019);
                 $last_minute = mktime(23, 59, 59, 1, date('t', $first_minute),2019);
-                echo 'starts : '.$first_minute;
-                echo 'ends : '.$last_minute;
-
-
-
-
+                
 
                 $month=date("m",$first_minute);
                 $year=date("Y",$first_minute);
@@ -101,12 +102,12 @@
             if(isset($_POST['startdate']) && $_POST['startdate'] != ""){
 
                 $start_timestamp = strtotime($_POST['startdate']);
-                $month = date("m",$start_timestamp);
-                $year = date("Y",$start_timestamp);
+                $month = (int)date("m",$start_timestamp);
+                $year = (int)date("Y",$start_timestamp);
+                $m="";
+                
+                if($month == 2){
 
-                echo ' month : '.$month;
-                echo ' year : '.$year;
-                if($month == 02){
                     if($year % 4 == 0){
                         /* leap year */
                         $days = 29;
@@ -116,22 +117,62 @@
                         $days = 28;
                     }
                 }
-                else if ($month >= 01 && $month <= 12 && $month != 02 ){
+                else if (($month == 1 || $month == 3 || $month == 5 || $month == 7 || $month == 8 || $month == 10 || $month == 12 ) && $month != 2 ){
                     $days = 31;
 
-                }
+                }else if (($month == 4 || $month == 6 || $month == 9 || $month == 11 ) && $month != 2 ){
+                    $days = 30;
 
+                }
+                $d = [1,2,3,4,5,6,7,8,9];
+                
+                if(in_array($month, $d)){
+                    $m = "0".$month;
+                }
+                else{
+                    $m = $month;
+                }
+                
+                for ($i = 1; $i<=$days ; $i++ ){
+                    $count = 0;
+                   
+                         
+                        if(in_array($i, $d)){
+                            $j = "0".$i;
+                            
+                        }
+                        else{
+                            $j =$i;
+                            
+
+                        }
+
+                     $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%d-%m-%Y") = "'.$j.'-'.$m.'-'.$year.'"  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                    
+                    $percent_daywise = $DB->get_records_sql($sql);
+                    $count = round((count($percent_daywise)/$enrolled_count)*100,2);
+                    $datastr .= '[';
+                    $datastr .= '"'.$i.'", '.$count.'],';
+                   
+
+                }
+                
+                $datastr = rtrim($datastr, ',');
 
 
                 // $end_timestamp = strtotime('+ 7 days', $start_timestamp);
 
 
-                // $sql = 'select userid, timecompleted from {course_completions} where course ='.$_POST['courselist'].' and  timecompleted BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                // $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and  timecompleted BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%m-%Y") = "'.$m.'-'.$year.'"';
             }
             else{
-                // $sql = 'select userid, timecompleted from {course_completions} where course ='.$_POST['courselist'].'  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
             }
-            $course = $DB->get_records_sql($sql);
+            
+                
+              
+            $course = $DB->get_records_sql($sql_table);
 
             $percent_course_comp = round((count($course)/$enrolled_count)*100,2);
             $coursehtml = '<tr>
@@ -141,9 +182,9 @@
                               <td> '.$percent_course_comp.'% </td>
                             </tr>';
 
-             $datastr .='[';
-                     $datastr .= '"'.$name->shortname.'"' .',' .$percent_course_comp.',"'.$percent_course_comp.'%"';
-                    $datastr .= '],';
+             // $datastr .='[';
+             //         $datastr .= '"'.$name->shortname.'"' .',' .$percent_course_comp.',"'.$percent_course_comp.'%"';
+             //        $datastr .= '],';
 
 
              $labelstr = "'Course Completion' ,{ role: 'annotation' }";
@@ -158,7 +199,7 @@
 
                 function drawMaterial() {
                 var data = google.visualization.arrayToDataTable([
-                     ['coursename', ".$labelstr."]," .
+                     ['days', 'Completion']," .
                         $datastr
                    . "
                 ]);
@@ -176,7 +217,8 @@
                         title: 'Percentage Completion',
                     },
                     hAxis:{
-                         textPosition : 'in',
+                        title : 'Days',
+                        
                     },
                         
                         
@@ -205,7 +247,7 @@
 
              <form id="dateform" method="POST">
             <input name ="startdate" id="startdate" hidden  />
-            <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($_POST['courselist']) && $_POST['courselist'] != "" ?  $_POST['courselist']  : '' ?>"/> 
+            <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($COURSE) && $COURSE != "" ?  $COURSE  : '' ?>"/> 
 
     
          </form>
@@ -214,14 +256,14 @@
                 
                 <div class= "col-md-8">
                         <form id= "form1" method="POST">
-                            <select name= "courselist" id="courselist">
+                           <!--  <select name= "courselist" id="courselist">
                                 <?php echo $option ?>
-                            </select>
+                            </select> -->
                         </form>
                     </div>
                     <div class="col-md-4">
                         <div class="row">
-                        Week Start From :&nbsp;<input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?>"/>
+                        Month : &nbsp;<input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?>"/>
                          <a  style="color:green;cursor:pointer;" id="clear"> Clear Date</a>
 
                     </div>

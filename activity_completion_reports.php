@@ -13,10 +13,10 @@
     $PAGE->requires->jquery();
 
    
-     $PAGE->requires->js( new moodle_url($CFG->wwwroot . '/blocks/ssc_reports/custom.js'));
+     $PAGE->requires->js( new moodle_url($CFG->wwwroot . '/blocks/scc_reports/custom.js'));
     $PAGE->requires->css( new moodle_url('https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css'));
 
-    $PAGE->requires->css( new moodle_url($CFG->wwwroot .'/blocks/ssc_reports/style.css'));
+    $PAGE->requires->css( new moodle_url($CFG->wwwroot .'/blocks/scc_reports/style.css'));
     
    
     $context = context_system::instance();
@@ -33,7 +33,15 @@
     }
 
     echo $OUTPUT->header();
+    if(isset($_REQUEST['cid'])){
+         $COURSE  = $_REQUEST['cid'];
+
+    }
       echo "<script src='https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js'></script>";
+
+    if(isset($_POST['courselist']) && $_POST['courselist'] != ""){
+        $COURSE  = $_POST['courselist'];
+    }
     
     $sql = 'select id, shortname from {course} where id >1';
     $courses = $DB->get_records_sql($sql);
@@ -42,14 +50,14 @@
 
 
     foreach($courses as $key => $course){
-        $option .= '<option value= "'.$course->id.'" '.(isset($_POST['courselist']) && $_POST['courselist'] == $course->id  ? "selected" : "").'>'.$course->shortname.'</option>'; 
+        $option .= '<option value= "'.$course->id.'" '.(isset($COURSE) && $COURSE == $course->id  ? "selected" : "").'>'.$course->shortname.'</option>'; 
     }
     $acthtml= '';
     $coursehtml = '';
 
-    if(isset($_POST['courselist']) && $_POST['courselist'] != ""){
+    if(isset($COURSE) && $COURSE != ""){
 
-        $sql = 'select id from {enrol} where courseid = '.$_POST['courselist'] .' and enrol= "manual"';
+        $sql = 'select id from {enrol} where courseid = '.$COURSE .' and enrol= "manual"';
         $enrol = $DB->get_record_sql($sql);
         if(isset($enrol->id) && $enrol->id != ""){
 
@@ -80,13 +88,13 @@
         $instr = trim($instr,',');
         $instr .= ")";
 
-        $sql = 'select id,module, instance from {course_modules} where course = '.$_POST['courselist']. ' and module in  '.$instr;
+        $sql = 'select id,module, instance from {course_modules} where course = '.$COURSE. ' and module in  '.$instr;
        ;
         $allmodules = $DB->get_records_sql($sql);
 
 
          /* check if completion_report table contain this courseid */
-       $sql = "select * from {completion_report} where courseid = ".$_POST['courselist'];
+       $sql = "select * from {completion_report} where courseid = ".$COURSE;
         $saved = $DB->get_record_sql($sql);
         $datastr = "";
         $coursecomp = 0;
@@ -105,7 +113,7 @@
 
             /*for course completion table */
 
-            $sql = 'select shortname from {course} where id = '.$_POST['courselist'];
+            $sql = 'select shortname from {course} where id = '.$COURSE;
             $name = $DB->get_record_sql($sql);
 
             if(isset($_POST['startdate']) && $_POST['startdate'] != ""){
@@ -113,10 +121,10 @@
                 $start_timestamp = strtotime($_POST['startdate']);
                 $end_timestamp = strtotime('+ 7 days', $start_timestamp);
 
-                 $sql = 'select userid, timecompleted from {course_completions} where course ='.$_POST['courselist'].' and  timecompleted BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                 $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and  timecompleted BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist .' and timecompleted IS NOT NULL';
             }
             else{
-                $sql = 'select userid, timecompleted from {course_completions} where course ='.$_POST['courselist'].'  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
             }
             $course = $DB->get_records_sql($sql);
 
@@ -275,6 +283,7 @@
                 
 
     }
+   
 
 ?>
 
@@ -282,22 +291,24 @@
 
         <form id="dateform" method="POST">
             <input name ="startdate" id="startdate" hidden  />
-            <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($_POST['courselist']) && $_POST['courselist'] != "" ?  $_POST['courselist']  : '' ?>"/> 
+            <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($COURSE) && $COURSE != "" ?  $COURSE  : '' ?>"/> 
 
     
          </form>
                 
                 <div class="row">
                     <div class= "col-md-8">
-                        <form id= "form1" method="POST">
+                        <!-- <form id= "form1" method="POST">
                             <select name= "courselist" id="courselist">
                                 <?php echo $option ?>
                             </select>
-                        </form>
+                        </form> -->
+                        <a href="export.php?cid=<?php echo $COURSE ?>"><img id= "printbutton" src="images/excelnew.jpg" style="height:75px; width:149px"/></a>
+
                     </div>
                     <div class="col-md-4">
                         <div class="row">
-                        Week Start From :&nbsp;<input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?>"/>
+                        Week Start From  :&nbsp;<input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?>"/>
                          <a  style="color:green;cursor:pointer;" id="clear"> Clear Date</a>
 
                     </div>
