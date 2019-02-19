@@ -17,13 +17,14 @@
 /**
  * Version details
  *
- * @package    block_student_report
- * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
+ * @package    block_SCC_reports
+ * @developer  Shubhendra Doiphode doiphode.sunny@gmail.com
+ * @copyright  2019 SCC
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016052348;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2019021900;        // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2016053300;        // Requires this Moodle version
 $plugin->component = 'block_scc_reports'; // Full name of the plugin (used for diagnostics)

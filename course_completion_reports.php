@@ -119,14 +119,28 @@
                 }
                 $year_label = $year;
                 $monthlabels = array('Jan','Feb','March','April','May','June','July','Aug','Sep','Oct','Nov','Dec');
-                $monthtraversed = 0;
-                while(($i%12) >= 0 && ($i%12) <= 11 && ($monthtraversed != 12)){
-                    $monthtraversed  += 1; 
+
+                $current_month = (int)date('m',time());
+                $current_year = (int)date('Y',time());
+               
+                $monthcheck = $month;
+                // $monthtraversed = 0;
+                while(($i%12) >= 0 && ($i%12) <= 11 ){
+                    // $monthtraversed  += 1; 
                     $modulus = $i%12;
                     if($modulus == 0){
-                        $year += 1;
-                        $year_label .= ','.$year;
+                       
+                        $monthcheck = 12;
+                        
                     }
+                    else{
+                        $monthcheck = $modulus;
+                    }
+
+                    if(($monthcheck > $current_month) && ($year == $current_year) ){
+                        break;
+                    }
+
                     $count = 0;
 
                          
@@ -147,6 +161,10 @@
                     $count = round((count($percent_monthwise)/$enrolled_count)*100,2);
                     $datastr .= '[';
                     $datastr .= '"'.$monthlabels[($key)].'", '.$count.'],';
+                    if($modulus == 0){
+                        $year += 1;
+                        $year_label .= ','.$year;
+                    }
                     $i++;
 
                 }
@@ -181,7 +199,8 @@
                     }
                     
                     $date1 = "01-".($startmonth)."-".$yeartaken[0]; 
-                    $date2  = "31-".($endmonth)."-".$yeartaken[1]; 
+                    $start_timestamp = strtotime($date1);
+                    $date2  = "31-".($current_month)."-".$current_year; 
                     $endtimestamp = strtotime($date2);
                    
                     $sql_table = 'select userid, DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%d-%m-%Y"), timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted BETWEEN  '.$start_timestamp .' and '.$endtimestamp;
@@ -213,14 +232,33 @@
                 }
                 $year_label = $year;
                 $monthlabels = array('Jan','Feb','March','April','May','June','July','Aug','Sep','Oct','Nov','Dec');
-                $monthtraversed = 0;
-                while(($i%12) >= 0 && ($i%12) <= 11 && ($monthtraversed != 12)){
-                    $monthtraversed  += 1; 
+                // $monthtraversed = 0;
+                $current_month = (int)date('m',time());
+                $current_year = (int)date('Y',time());
+               
+                $monthcheck = $month;
+                while(($i%12) >= 0 && ($i%12) <= 11 ){
+
+                    // $monthtraversed  += 1; 
+                    
+                    
                     $modulus = $i%12;
+                    
                     if($modulus == 0){
-                        $year += 1;
-                        $year_label .= ','.$year;
+                       
+                        $monthcheck = 12;
+                        
                     }
+                    else{
+                        $monthcheck = $modulus;
+                    }
+
+                   
+                    if(($monthcheck > $current_month) && ($year == $current_year) ){
+                        break;
+                    }
+                   
+                    
                     $count = 0;
 
                          
@@ -241,7 +279,12 @@
                     $count = round((count($percent_monthwise)/$enrolled_count)*100,2);
                     $datastr .= '[';
                     $datastr .= '"'.$monthlabels[($key)].'", '.$count.'],';
+                    if($modulus == 0){
+                        $year += 1;
+                        $year_label .= ','.$year;
+                    }
                     $i++;
+                    
 
                 }
                 
@@ -276,8 +319,9 @@
                         $endmonth = "0".$endmonth;
                     }
                     
-                    $date1 = "01-".($startmonth)."-".$yeartaken[0]; 
-                    $date2  = "31-".($endmonth)."-".$yeartaken[1]; 
+                    $date1 = "01-".($startmonth)."-".$yeartaken[0];
+
+                    $date2  = "31-".($current_month)."-".$current_year; 
                     $endtimestamp = strtotime($date2);
                    
                      $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted BETWEEN  '.$start_timestamp .' and '.$endtimestamp;
@@ -390,9 +434,11 @@
                     </div>
                     <div class="col-md-6">
                         <div class="row">
-                        <label id="selector"><?php echo isset($_POST['startdate']) && $_POST['startdate'] != "" ? 'Year (Selected) : &nbsp;' : 'Year (Not selected from date picker) : &nbsp;' ?></label><input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?> " placeholder='Date from date picker not selected'/>
+                            <label id="selector"><?php echo isset($_POST['startdate']) && $_POST['startdate'] != "" ? 'Year (Selected) : &nbsp;' : 'Year (Not selected from date picker) : &nbsp;' ?></label><input id="dateselector" value="<?php echo isset($_POST['startdate']) ? $_POST['startdate'] : '' ?> " placeholder='Date from date picker not selected'/><br>
+                        </div>
+                        <div class="row">
                          <a  style="color:green;cursor:pointer;" id="clear"> Clear Date</a>
-
+                        </div>
                     </div>
                
                
