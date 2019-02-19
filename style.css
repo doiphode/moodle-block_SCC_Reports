@@ -1,0 +1,14 @@
+#users thead th{
+	border-bottom:0px!important;
+}
+
+
+
+table.dataTable.no-footer{
+	border-bottom:0px!important;
+}
+
+
+div[role="navigator"] > table> thead {
+	display: none;
+}
