@@ -59,8 +59,26 @@
         $instr .= ")";
 
         $sql = 'select id,module, instance from {course_modules} where course = '.$COURSE. ' and module in  '.$instr;
-       ;
+       
         $allmodules = $DB->get_records_sql($sql);
+
+        $sql = "select * from {completion_report} where courseid = ".$COURSE;
+        $saved = $DB->get_record_sql($sql);
+        $datastr = "";
+        $coursecomp = 0;
+         if(isset($saved->id) && $saved->id  >0 ){
+                
+
+                $cmid_selected = urldecode($saved->cmid_selected);
+                $cmid_array = json_decode($cmid_selected);
+                 
+
+                $coursecomp = $saved->coursecomp_selected;
+                
+
+
+            }
+
 
          $activity_completion = array();/* contains % completion with cmid as keys */
         foreach($allmodules as $key => $module){
@@ -78,16 +96,32 @@
 
                 $sql = 'select name from {'.$table->name.'} where id = '.$module->instance;
                 $actname = $DB->get_record_sql($sql);
-                
-                $worksheet[0]->write($row, 0, $name->shortname);
-                $worksheet[0]->write($row, 1, $actname->name);
-                $worksheet[0]->write($row, 2, $table->name);
-                $worksheet[0]->write($row, 3, $enrolled_count);
-                $worksheet[0]->write($row, 4, count($act));
-                $worksheet[0]->write($row, 5, $activity_completion[$key]);
 
+                if(isset($cmid_array) && count($cmid_array) >  0){
+                     if(in_array($key, $cmid_array)){
+                
+                        $worksheet[0]->write($row, 0, $name->shortname);
+                        $worksheet[0]->write($row, 1, $actname->name);
+                        $worksheet[0]->write($row, 2, $table->name);
+                        $worksheet[0]->write($row, 3, $enrolled_count);
+                        $worksheet[0]->write($row, 4, count($act));
+                        $worksheet[0]->write($row, 5, $activity_completion[$key]);
+
+                        $row++;
+                    }
+                     
+                }
+                else if(isset($cmid_array) && count($cmid_array) == 0){
+                        $worksheet[0]->write($row, 0, $name->shortname);
+                        $worksheet[0]->write($row, 1, $actname->name);
+                        $worksheet[0]->write($row, 2, $table->name);
+                        $worksheet[0]->write($row, 3, $enrolled_count);
+                        $worksheet[0]->write($row, 4, count($act));
+                        $worksheet[0]->write($row, 5, $activity_completion[$key]);
+                         $row++;
+                }
             }
-            $row++;
+           
         }
     }
 

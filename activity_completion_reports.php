@@ -167,13 +167,26 @@
                 $sql = 'select name from {'.$table->name.'} where id = '.$module->instance;
                  $actname = $DB->get_record_sql($sql);
 
-                 $acthtml .= '<tr> 
-                                <td id="row_'.$key.'">'.$actname->name.'</td>
-                                <td>'.$table->name.'</td>
-                                <td>'.$enrolled_count.'</td>
-                                <td>'.count($act).'</td>
-                                <td>'.$activity_completion[$key].'%</td>
-                        </tr>';
+                 if(isset($cmid_array) && count($cmid_array) >  0){
+                     if(in_array($key, $cmid_array)){
+                        $acthtml .= '<tr> 
+                                    <td id="row_'.$key.'">'.$actname->name.'</td>
+                                    <td>'.$table->name.'</td>
+                                    <td>'.$enrolled_count.'</td>
+                                    <td>'.count($act).'</td>
+                                    <td>'.$activity_completion[$key].'%</td>
+                                </tr>';
+                        }
+                    }
+                    else if(isset($cmid_array) && count($cmid_array) == 0){
+                         $acthtml .= '<tr> 
+                                    <td id="row_'.$key.'">'.$actname->name.'</td>
+                                    <td>'.$table->name.'</td>
+                                    <td>'.$enrolled_count.'</td>
+                                    <td>'.count($act).'</td>
+                                    <td>'.$activity_completion[$key].'%</td>
+                                </tr>';
+                    }
 
                         if(isset($cmid_array) && count($cmid_array) == 0){
                             
@@ -286,10 +299,10 @@
    
 
 ?>
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
     <div class="container">
 
-        <form id="dateform" method="POST">
+        <form id="dateform" method="POST" style="display:none">
             <input name ="startdate" id="startdate" hidden  />
             <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($COURSE) && $COURSE != "" ?  $COURSE  : '' ?>"/> 
 

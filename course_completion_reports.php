@@ -81,7 +81,7 @@
 
 
 
-            $sql = 'select shortname from {course} where id = '.$COURSE;
+            $sql = 'select shortname,timecreated from {course} where id = '.$COURSE;
             $name = $DB->get_record_sql($sql);
 
            
@@ -105,6 +105,7 @@
                 $month = (int)date("m",$start_timestamp);
                 $year = (int)date("Y",$start_timestamp);
                 $m="";
+                $fullmonth = date("F",$start_timestamp);
                 
                 if($month == 2){
 
@@ -147,7 +148,7 @@
 
                         }
 
-                     $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%d-%m-%Y") = "'.$j.'-'.$m.'-'.$year.'"  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                    $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%d-%m-%Y") = "'.$j.'-'.$m.'-'.$year.'"  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
                     
                     $percent_daywise = $DB->get_records_sql($sql);
                     $count = round((count($percent_daywise)/$enrolled_count)*100,2);
@@ -167,7 +168,74 @@
                 $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%m-%Y") = "'.$m.'-'.$year.'"';
             }
             else{
-                $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+
+                $start_timestamp = strtotime($name->timecreated);
+                $month = (int)date("m",$start_timestamp);
+                $year = (int)date("Y",$start_timestamp);
+                $m="";
+                $fullmonth = date("F",$start_timestamp);
+                
+                if($month == 2){
+
+                    if($year % 4 == 0){
+                        /* leap year */
+                        $days = 29;
+
+                    }
+                    else{
+                        $days = 28;
+                    }
+                }
+                else if (($month == 1 || $month == 3 || $month == 5 || $month == 7 || $month == 8 || $month == 10 || $month == 12 ) && $month != 2 ){
+                    $days = 31;
+
+                }else if (($month == 4 || $month == 6 || $month == 9 || $month == 11 ) && $month != 2 ){
+                    $days = 30;
+
+                }
+                $d = [1,2,3,4,5,6,7,8,9];
+                
+                if(in_array($month, $d)){
+                    $m = "0".$month;
+                }
+                else{
+                    $m = $month;
+                }
+                
+                for ($i = 1; $i<=$days ; $i++ ){
+                    $count = 0;
+                   
+                         
+                        if(in_array($i, $d)){
+                            $j = "0".$i;
+                            
+                        }
+                        else{
+                            $j =$i;
+                            
+
+                        }
+
+                    $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%d-%m-%Y") = "'.$j.'-'.$m.'-'.$year.'"  and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                    
+                    $percent_daywise = $DB->get_records_sql($sql);
+                    $count = round((count($percent_daywise)/$enrolled_count)*100,2);
+                    $datastr .= '[';
+                    $datastr .= '"'.$i.'", '.$count.'],';
+                   
+
+                }
+                
+                $datastr = rtrim($datastr, ',');
+
+
+                // $end_timestamp = strtotime('+ 7 days', $start_timestamp);
+
+
+                // $sql = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.' and  timecompleted BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist .' and timecompleted IS NOT NULL';
+                $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%m-%Y") = "'.$m.'-'.$year.'"';
+
+                /* ## completed % irrespective of month ## $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL';*/
             }
             
                 
@@ -217,7 +285,7 @@
                         title: 'Percentage Completion',
                     },
                     hAxis:{
-                        title : 'Days',
+                        title : 'Month ".$fullmonth." : Days',
                         
                     },
                         
@@ -242,10 +310,10 @@
         }
      }
     ?>
-
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
         <div class="container">
 
-             <form id="dateform" method="POST">
+             <form id="dateform" method="POST" style="display:none">
             <input name ="startdate" id="startdate" hidden  />
             <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($COURSE) && $COURSE != "" ?  $COURSE  : '' ?>"/> 
 
@@ -293,7 +361,8 @@
             </div>
         </div>
 
-        <!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> -->
+
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://unpkg.com/gijgo@1.9.11/js/gijgo.min.js" type="text/javascript"></script>
     <link href="https://unpkg.com/gijgo@1.9.11/css/gijgo.min.css" rel="stylesheet" type="text/css" />
 

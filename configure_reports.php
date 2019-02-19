@@ -102,7 +102,7 @@
     
     ?>
 
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
     <div class="container">
 
        
@@ -147,7 +147,7 @@
                    
                
             </div>
-            <form id = "form2" method="POST">
+            <form id = "form2" method="POST" style="display:none">
                  <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($COURSE) && $COURSE != "" ?  $COURSE  : '' ?>"/>
              </form>
     </div>

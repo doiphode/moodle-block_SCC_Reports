@@ -82,7 +82,7 @@
                     ";
 
 ?>
-
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
 <div class="container">
     <div class="row">
         <div class="col-md-12" id="graph" align="center" style="display: block;margin: 0 auto"></div>
