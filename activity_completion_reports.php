@@ -148,11 +148,11 @@
                 $start_timestamp = strtotime($_POST['startdate']);
                 $end_timestamp = strtotime('+ 7 days', $start_timestamp);
                 
-                 $sql = 'select userid,timemodified from {course_modules_completion} where coursemoduleid ='.$module->id.' and timemodified BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and  userid in '.$userlist ;
+                 $sql = 'select userid,timemodified from {course_modules_completion} where coursemoduleid ='.$module->id.' and timemodified BETWEEN '.$start_timestamp.' AND '.$end_timestamp.' and completionstate = 1 and  userid in '.$userlist ;
                         
             }
             else{
-                 $sql = 'select userid,timemodified from {course_modules_completion} where coursemoduleid ='.$module->id.' and userid in '.$userlist;
+                 $sql = 'select userid,timemodified from {course_modules_completion} where coursemoduleid ='.$module->id.' and completionstate = 1 and userid in '.$userlist;
 
             }
            

@@ -122,7 +122,7 @@
 
                 $current_month = (int)date('m',time());
                 $current_year = (int)date('Y',time());
-               
+                $current_timestamp = time();
                 $monthcheck = $month;
                 // $monthtraversed = 0;
                 while(($i%12) >= 0 && ($i%12) <= 11 ){
@@ -181,7 +181,7 @@
 
                     $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%Y") = "'.$year.'"';
                 }
-                else if(count($yeartaken) == 2){
+                else if(count($yeartaken) > 1){
                     $startdate = $_POST['startdate'];
                     $start_timestamp = strtotime($startdate);
                     if(in_array($month, $d)){
@@ -200,11 +200,13 @@
                     
                     $date1 = "01-".($startmonth)."-".$yeartaken[0]; 
                     $start_timestamp = strtotime($date1);
-                    $date2  = "31-".($current_month)."-".$current_year; 
+
+                    $date2  = date("t-m-Y"); 
+                     // echo 'date: '. $date2;
                     $endtimestamp = strtotime($date2);
                    
-                    $sql_table = 'select userid, DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%d-%m-%Y"), timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted BETWEEN  '.$start_timestamp .' and '.$endtimestamp;
-                   
+                     $sql_table = 'select userid, DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%d-%m-%Y"), timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted BETWEEN  '.$start_timestamp .' and '.$endtimestamp;
+                  
 
                 }
                
@@ -302,7 +304,7 @@
 
                      $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted IS NOT NULL and DATE_FORMAT(FROM_UNIXTIME(timecompleted), "%Y") = "'.$year.'"';
                 }
-                else if(count($yeartaken) == 2){
+                else if(count($yeartaken) > 1){
                     
 
                     if(in_array($month, $d)){
@@ -321,10 +323,14 @@
                     
                     $date1 = "01-".($startmonth)."-".$yeartaken[0];
 
-                    $date2  = "31-".($current_month)."-".$current_year; 
+                    
+                   
+                    $date2  = date("t-m-Y"); 
+                    // echo 'date: '. $date2;
+                    
                     $endtimestamp = strtotime($date2);
                    
-                     $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted BETWEEN  '.$start_timestamp .' and '.$endtimestamp;
+                    $sql_table = 'select userid, timecompleted from {course_completions} where course ='.$COURSE.'  and  userid in '.$userlist .' and timecompleted BETWEEN  '.$start_timestamp .' and '.$endtimestamp;
                   
                 }
                 
@@ -365,6 +371,7 @@
                         $datastr
                    . "
                 ]);
+
 
                 var options = {
                     chartArea: {
@@ -416,7 +423,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
         <div class="container">
 
-             <form id="dateform" method="POST" style="display:none">
+            <form id="dateform" method="POST" style="display:none">
             <input name ="startdate" id="startdate" hidden  />
             <input name ="courselist"  id= "courselist" type="text" hidden value="<?php echo isset($COURSE) && $COURSE != "" ?  $COURSE  : '' ?>"/> 
 
@@ -473,13 +480,13 @@
 
      <?php
     echo $OUTPUT->footer();
-     echo "<script src='https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js'></script>";
-      echo "<script type='text/javascript'>
-            $(document).ready(function(){
-                $('#report_table').DataTable({
-                    'stripeClasses': [ ]
-                    });
+    //  echo "<script src='https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js'></script>";
+    //   echo "<script type='text/javascript'>
+    //         $(document).ready(function(){
+    //             $('#report_table').DataTable({
+    //                 'stripeClasses': [ ]
+    //                 });
 
 
-            });
-    </script>";
+    //         });
+    // </script>";
